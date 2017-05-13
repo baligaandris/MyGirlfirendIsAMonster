@@ -76,6 +76,11 @@ public class Player : MonoBehaviour {
                 Destroy(littleManInstance);
             }
         }
+        if (Input.GetButtonDown("Fire2")) {
+            if () {
+
+            }
+        }
 
 	}
     bool IsGrounded(){

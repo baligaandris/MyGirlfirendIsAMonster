@@ -5,6 +5,7 @@ using UnityEngine;
 public class InteractableDetection : MonoBehaviour {
 
     public bool manInRange;
+    public bool enemyInRange;
 
 	// Use this for initialization
 	void Start () {
@@ -21,6 +22,11 @@ public class InteractableDetection : MonoBehaviour {
         if (other.gameObject.tag == "Little Man")
         {
             manInRange = true;
+        }
+
+        if (other.gameObject.tag == "Enemy")
+        {
+            enemyInRange = true;
         }
 
     }
