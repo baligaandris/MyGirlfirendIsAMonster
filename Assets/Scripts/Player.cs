@@ -7,20 +7,29 @@ public class Player : MonoBehaviour {
     public float walkingSpeed;
     public float jumpStrenght;
     public float climbingSpeed;
+
+    public GameObject littleManPrefab;
+    private GameObject littleManInstance;
     private GameObject groundDetector;
     private GameObject wallDetectorLeft;
     private GameObject wallDetectorRight;
     private GameObject littleMan;
+    private GameObject interactableDetector;
 
     private Rigidbody2D rb;
     private Vector2 currentspeed;
     private bool carrying = true;
 
-	// Use this for initialization
-	void Start () {
+
+
+
+    // Use this for initialization
+    void Start () {
+        
         groundDetector = transform.FindChild("GroundDetector").gameObject;
         wallDetectorLeft = transform.FindChild("WallDetectorLeft").gameObject;
         wallDetectorRight = transform.FindChild("WallDetectorRight").gameObject;
+        interactableDetector = transform.FindChild("InteractArea").gameObject;
         rb = GetComponent<Rigidbody2D>();
         littleMan = transform.FindChild("Little Man").gameObject;
 
@@ -52,11 +61,19 @@ public class Player : MonoBehaviour {
         else {
             rb.gravityScale = 1f;
         }
-        if (Input.GetButton("Fire1")) {
+        if (Input.GetButtonDown("Fire1")) {
             if (carrying) {
+
                 carrying = false;
-                littleMan.GetComponent<Rigidbody2D>().simulated = true;
-                littleMan.transform.parent = null;
+                littleMan.SetActive(false);
+                littleManInstance = Instantiate(littleManPrefab, transform.position, Quaternion.identity);
+                Camera.main.transform.parent = littleManInstance.transform;
+                
+            } else if (interactableDetector.GetComponent<InteractableDetection>().manInRange) {
+                Camera.main.transform.parent = gameObject.transform;
+                littleMan.SetActive(true);
+                carrying = true;
+                Destroy(littleManInstance);
             }
         }
 
