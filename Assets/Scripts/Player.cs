@@ -15,6 +15,7 @@ public class Player : MonoBehaviour {
     private GameObject wallDetectorRight;
     private GameObject littleMan;
     private GameObject interactableDetector;
+    private GameObject attackRange;
 
     private Rigidbody2D rb;
     private Vector2 currentspeed;
@@ -30,6 +31,7 @@ public class Player : MonoBehaviour {
         wallDetectorLeft = transform.FindChild("WallDetectorLeft").gameObject;
         wallDetectorRight = transform.FindChild("WallDetectorRight").gameObject;
         interactableDetector = transform.FindChild("InteractArea").gameObject;
+        attackRange = transform.FindChild("Attack Range").gameObject;
         rb = GetComponent<Rigidbody2D>();
         littleMan = transform.FindChild("Little Man").gameObject;
 
@@ -39,6 +41,14 @@ public class Player : MonoBehaviour {
 	void Update () {
         currentspeed = rb.velocity;
         rb.velocity = new Vector2(Input.GetAxis("Horizontal") * walkingSpeed, currentspeed.y);
+        if (Input.GetAxis("Horizontal") > 0)
+        {
+            transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x),transform.localScale.y,transform.localScale.z);
+        }
+        else if (Input.GetAxis("Horizontal") < 0)
+        {
+            transform.localScale = new Vector3(-1f * Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
+        }
         if (IsGrounded()) {
             //transform.Translate(Vector2.right * walkingSpeed*Input.GetAxis("Horizontal")*Time.deltaTime);
             
@@ -66,21 +76,24 @@ public class Player : MonoBehaviour {
 
                 carrying = false;
                 littleMan.SetActive(false);
-                littleManInstance = Instantiate(littleManPrefab, transform.position, Quaternion.identity);
-                Camera.main.transform.parent = littleManInstance.transform;
+                littleManInstance = Instantiate(littleManPrefab, attackRange.transform.position, Quaternion.identity);
+                Camera.main.GetComponent<FollowPlayer>().ChangeFollowTarget(littleManInstance);
                 
             } else if (interactableDetector.GetComponent<InteractableDetection>().manInRange) {
-                Camera.main.transform.parent = gameObject.transform;
+                Camera.main.GetComponent<FollowPlayer>().ChangeFollowTarget(gameObject);
                 littleMan.SetActive(true);
                 carrying = true;
                 Destroy(littleManInstance);
             }
         }
-        if (Input.GetButtonDown("Fire2")) {
-            if () {
-
+        if (carrying == false)
+        {
+            if (Input.GetButtonDown("Fire2"))
+            {
+                attackRange.GetComponent<PlayerAttackScript>().HitEnemies();
             }
         }
+
 
 	}
     bool IsGrounded(){

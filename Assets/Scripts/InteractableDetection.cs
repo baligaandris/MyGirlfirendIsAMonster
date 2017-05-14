@@ -4,8 +4,7 @@ using UnityEngine;
 
 public class InteractableDetection : MonoBehaviour {
 
-    public bool manInRange;
-    public bool enemyInRange;
+    public bool manInRange = false;
 
 	// Use this for initialization
 	void Start () {
@@ -24,17 +23,14 @@ public class InteractableDetection : MonoBehaviour {
             manInRange = true;
         }
 
-        if (other.gameObject.tag == "Enemy")
-        {
-            enemyInRange = true;
-        }
 
     }
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if (collision.gameObject.name == "Little Man")
+        if (collision.gameObject.tag == "Little Man")
         {
+            Debug.Log("moved out of range");
             manInRange = false;
         }
     }
