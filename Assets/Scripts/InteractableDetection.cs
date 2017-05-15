@@ -6,6 +6,7 @@ public class InteractableDetection : MonoBehaviour {
 
     public bool manInRange = false;
 
+
 	// Use this for initialization
 	void Start () {
 		
@@ -22,7 +23,6 @@ public class InteractableDetection : MonoBehaviour {
         {
             manInRange = true;
         }
-
 
     }
 

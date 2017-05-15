@@ -91,11 +91,18 @@ public class Player : MonoBehaviour {
             if (Input.GetButtonDown("Fire2"))
             {
                 attackRange.GetComponent<PlayerAttackScript>().HitEnemies();
+                attackRange.GetComponent<PlayerAttackScript>().OpenDoor();
+            }
+        }
+        else {
+            if (Input.GetButtonDown("Fire2"))
+            {
+                attackRange.GetComponent<PlayerAttackScript>().OpenDoor();
             }
         }
 
 
-	}
+    }
     bool IsGrounded(){
         return Physics2D.Linecast(transform.position, groundDetector.transform.position, 1 << LayerMask.NameToLayer("Ground"));
     }
