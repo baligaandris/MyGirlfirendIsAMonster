@@ -14,6 +14,9 @@ public class PatrolScript : MonoBehaviour {
     public enum Statemachine {Idle, Patrolling, Alert, Chasing};
     public Statemachine currentState = Statemachine.Patrolling;
     private float waitTime =0;
+    private float stateCooldown;
+    public float chaseCooldown = 10;
+    public float AlertCooldown = 10;
 
     // Use this for initialization
     void Start () {
@@ -56,6 +59,10 @@ public class PatrolScript : MonoBehaviour {
         }
         else if (currentState == Statemachine.Alert)
         {
+            stateCooldown -= Time.deltaTime;
+            if (stateCooldown <= 0) {
+                currentState = Statemachine.Idle;
+            }
             waitTime -= Time.deltaTime;
             if (waitTime <= 0)
             {
@@ -69,6 +76,12 @@ public class PatrolScript : MonoBehaviour {
             //{
             //    speed = runningSpeed;
             //}
+            stateCooldown -= Time.deltaTime;
+            if (stateCooldown <= 0)
+            {
+                currentState = Statemachine.Alert;
+                stateCooldown = chaseCooldown;
+            }
             target = GameData.player;
             gameObject.transform.position = Vector3.MoveTowards(transform.position, target.transform.position, speed * Time.deltaTime);
             LookWhereYouAreGoing();
@@ -82,5 +95,13 @@ public class PatrolScript : MonoBehaviour {
     private void LookWhereYouAreGoing() {
         transform.localScale = new Vector3(1 * Mathf.Sign((transform.position - target.transform.position).x), 1, 1);
     }
-    
+
+    public void SetEnemyState(Statemachine newState) {
+        currentState = newState;
+    }
+
+    public void SetChaseCooldown()
+    {
+        stateCooldown = chaseCooldown;
+    }
 }
