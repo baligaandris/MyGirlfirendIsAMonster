@@ -8,12 +8,20 @@ public class DoorScript : MonoBehaviour {
     private Vector3 closedPosition;
     private Vector3 target;
     private bool open;
+    public bool vertical = true;
 
 	// Use this for initialization
 	void Start () {
         closedPosition = transform.position;
         target = transform.position;
-        openPosition = new Vector3(transform.position.x, transform.position.y + 1);
+        if (vertical)
+        {
+            openPosition = new Vector3(transform.position.x, transform.position.y + 1);
+        }
+        else {
+            openPosition = new Vector3(transform.position.x + 1, transform.position.y);
+        }
+        
 	}
 	
 	// Update is called once per frame
