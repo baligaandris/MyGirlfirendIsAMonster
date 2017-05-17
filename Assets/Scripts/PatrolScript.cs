@@ -104,4 +104,10 @@ public class PatrolScript : MonoBehaviour {
     {
         stateCooldown = chaseCooldown;
     }
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.tag == "Enemy") {
+            Physics2D.IgnoreCollision(collision.gameObject.GetComponent<BoxCollider2D>(),gameObject.GetComponent<BoxCollider2D>());
+        }
+    }
 }
