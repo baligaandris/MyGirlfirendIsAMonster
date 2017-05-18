@@ -5,8 +5,6 @@ using UnityEngine;
 public class SentryScript : MonoBehaviour {
 
     public GameObject[] EnemiesToAlert;
-    private Transform startingTransform;
-
     public GameObject lookAt1;
     public GameObject lookAt2;
     private GameObject target;
@@ -31,15 +29,12 @@ public class SentryScript : MonoBehaviour {
                 turncooldown = howOftenToTurn;
                 target = lookAt2;
 
-            }else if (target == lookAt2)
+            } else if (target == lookAt2)
             {
                 turncooldown = howOftenToTurn;
                 target = lookAt1;
-
             }
-
         }
-
 
     }
 
@@ -47,8 +42,10 @@ public class SentryScript : MonoBehaviour {
     {
         if (collision.gameObject.tag == "Player") {
             for (int i = 0; i< EnemiesToAlert.Length; i++) {
-                EnemiesToAlert[i].GetComponent<PatrolScript>().SetEnemyState(PatrolScript.Statemachine.Chasing);
-                Debug.Log("Enemies Alerted");
+                if (EnemiesToAlert[i] != null) {
+                    EnemiesToAlert[i].GetComponent<PatrolScript>().SetEnemyState(PatrolScript.Statemachine.Chasing);
+                    Debug.Log("Enemies Alerted");
+                }
             }
         }
     }

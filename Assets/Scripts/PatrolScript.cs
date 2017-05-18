@@ -54,7 +54,7 @@ public class PatrolScript : MonoBehaviour {
         }
         else if (currentState == Statemachine.Idle)
         {
-
+            visionCone.transform.right = transform.right;
             waitTime -= Time.deltaTime;
             if (waitTime <= 0) {
                 TurnAround();
@@ -63,7 +63,7 @@ public class PatrolScript : MonoBehaviour {
         }
         else if (currentState == Statemachine.Alert)
         {
-
+            visionCone.transform.right = transform.right;
             stateCooldown -= Time.deltaTime;
             if (stateCooldown <= 0) {
                 SetEnemyState(Statemachine.Idle);
@@ -77,10 +77,6 @@ public class PatrolScript : MonoBehaviour {
         }
         else if (currentState == Statemachine.Chasing)
         {
-            //if (speed != runningSpeed)
-            //{
-            //    speed = runningSpeed;
-            //}
             stateCooldown -= Time.deltaTime;
             target = GameData.player;
             if (stateCooldown <= 0)
@@ -90,7 +86,7 @@ public class PatrolScript : MonoBehaviour {
                 stateCooldown = AlertCooldown;
             }
             gameObject.transform.position = Vector3.MoveTowards(transform.position, new Vector3(target.transform.position.x, transform.position.y), speed * Time.deltaTime);
-            //LookWhereYouAreGoing();
+            LookWhereYouAreGoing();
             LookAtPlayer();
         }
 
@@ -104,7 +100,7 @@ public class PatrolScript : MonoBehaviour {
     }
 
     public void SetEnemyState(Statemachine newState) {
-        visionCone.transform.right = transform.right;
+
 
         currentState = newState;
     }
