@@ -18,10 +18,13 @@ public class PatrolScript : MonoBehaviour {
     public float chaseCooldown = 10;
     public float AlertCooldown = 10;
 
+    private GameObject visionCone;
+
     // Use this for initialization
     void Start () {
         target = patrolPoint1;
         rb = GetComponent<Rigidbody2D>();
+        visionCone = transform.FindChild("ConeOfVision").gameObject;
 	}
 	
 	// Update is called once per frame
@@ -51,6 +54,7 @@ public class PatrolScript : MonoBehaviour {
         }
         else if (currentState == Statemachine.Idle)
         {
+
             waitTime -= Time.deltaTime;
             if (waitTime <= 0) {
                 TurnAround();
@@ -59,9 +63,10 @@ public class PatrolScript : MonoBehaviour {
         }
         else if (currentState == Statemachine.Alert)
         {
+
             stateCooldown -= Time.deltaTime;
             if (stateCooldown <= 0) {
-                currentState = Statemachine.Idle;
+                SetEnemyState(Statemachine.Idle);
             }
             waitTime -= Time.deltaTime;
             if (waitTime <= 0)
@@ -77,14 +82,16 @@ public class PatrolScript : MonoBehaviour {
             //    speed = runningSpeed;
             //}
             stateCooldown -= Time.deltaTime;
+            target = GameData.player;
             if (stateCooldown <= 0)
             {
-                currentState = Statemachine.Alert;
-                stateCooldown = chaseCooldown;
+                SetEnemyState(Statemachine.Alert);
+
+                stateCooldown = AlertCooldown;
             }
-            target = GameData.player;
-            gameObject.transform.position = Vector3.MoveTowards(transform.position, target.transform.position, speed * Time.deltaTime);
-            LookWhereYouAreGoing();
+            gameObject.transform.position = Vector3.MoveTowards(transform.position, new Vector3(target.transform.position.x, transform.position.y), speed * Time.deltaTime);
+            //LookWhereYouAreGoing();
+            LookAtPlayer();
         }
 
 	}
@@ -97,6 +104,8 @@ public class PatrolScript : MonoBehaviour {
     }
 
     public void SetEnemyState(Statemachine newState) {
+        visionCone.transform.right = transform.right;
+
         currentState = newState;
     }
 
@@ -109,5 +118,9 @@ public class PatrolScript : MonoBehaviour {
         if (collision.gameObject.tag == "Enemy") {
             Physics2D.IgnoreCollision(collision.gameObject.GetComponent<BoxCollider2D>(),gameObject.GetComponent<BoxCollider2D>());
         }
+    }
+
+    private void LookAtPlayer() {
+        visionCone.transform.right = (target.transform.position - transform.position)*-transform.localScale.x;
     }
 }

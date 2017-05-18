@@ -6,30 +6,49 @@ public class SentryScript : MonoBehaviour {
 
     public GameObject[] EnemiesToAlert;
     private Transform startingTransform;
-    private Quaternion q;
+
     public GameObject lookAt1;
     public GameObject lookAt2;
+    private GameObject target;
     public float speed;
+    private int rotationDirection=1;
+    public float howOftenToTurn = 5;
+    private float turncooldown;
 
     // Use this for initialization
     void Start () {
-        startingTransform = transform;
-        q = Quaternion.LookRotation(lookAt1.transform.position-transform.position);
+        target = lookAt1;
+        turncooldown = howOftenToTurn;
 	}
 	
 	// Update is called once per frame
 	void Update () {
+        turncooldown -= Time.deltaTime;
+        transform.right = Vector3.RotateTowards(transform.right, target.transform.position-transform.position, speed * Time.deltaTime,rotationDirection);
 
-        transform.right = Vector3.RotateTowards(transform.rotation.ToEuler(), lookAt1.transform.position-transform.position, speed * Time.deltaTime,1);
-        //Vector3 newdir = Vector3.RotateTowards(transform.rotation.eulerAngles, new Vector3 (startingTransform.rotation.x, startingTransform.rotation.y, startingTransform.rotation.z+60),1,-1);
-        //transform.rotation = Quaternion.Euler(newdir);
+        if (turncooldown<=0) {
+            if (target == lookAt1) {
+                turncooldown = howOftenToTurn;
+                target = lookAt2;
+
+            }else if (target == lookAt2)
+            {
+                turncooldown = howOftenToTurn;
+                target = lookAt1;
+
+            }
+
+        }
+
+
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.tag == "Player") {
-            for (int i = 0; i> EnemiesToAlert.Length; i++) {
+            for (int i = 0; i< EnemiesToAlert.Length; i++) {
                 EnemiesToAlert[i].GetComponent<PatrolScript>().SetEnemyState(PatrolScript.Statemachine.Chasing);
+                Debug.Log("Enemies Alerted");
             }
         }
     }
