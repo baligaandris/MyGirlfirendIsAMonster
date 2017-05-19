@@ -16,17 +16,17 @@ public class DoorScript : MonoBehaviour {
         target = transform.position;
         if (vertical)
         {
-            openPosition = new Vector3(transform.position.x, transform.position.y + 1);
+            openPosition = new Vector3(transform.position.x, transform.position.y + 1.2f);
         }
         else {
-            openPosition = new Vector3(transform.position.x + 1, transform.position.y);
+            openPosition = new Vector3(transform.position.x + 1.2f, transform.position.y);
         }
         
 	}
 	
 	// Update is called once per frame
 	void Update () {
-        transform.position = Vector3.MoveTowards(transform.position, target, 1);
+        transform.position = Vector3.MoveTowards(transform.position, target, 0.02f);
 	}
     public void OpenClose() {
         if (open)

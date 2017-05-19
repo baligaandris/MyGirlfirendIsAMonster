@@ -35,25 +35,26 @@ public class PatrolScript : MonoBehaviour {
             {
                 speed = walkingSpeed;
             }
+            GetComponent<Animator>().SetBool("Walking", true);
 
-            //if (GetComponent<EnemyAttackScript>().playerInRange == false)
-            //{
-            gameObject.transform.position = Vector3.MoveTowards(transform.position, target.transform.position, speed * Time.deltaTime);
-            //}
+            gameObject.transform.position = Vector3.MoveTowards(transform.position, new Vector3(target.transform.position.x, transform.position.y), speed * Time.deltaTime);
+
             
-            //rb.velocity = (target.transform.position - transform.position).normalized * speed;
-            LookWhereYouAreGoing();
-            if (transform.position == patrolPoint1.transform.position)
+            if (transform.position == new Vector3(patrolPoint1.transform.position.x,transform.position.y,transform.position.z))
             {
                 target = patrolPoint2;
+                LookWhereYouAreGoing();
             }
-            if (transform.position == patrolPoint2.transform.position)
+            if (transform.position == new Vector3(patrolPoint2.transform.position.x, transform.position.y, transform.position.z))
             {
                 target = patrolPoint1;
+                LookWhereYouAreGoing();
             }
+
         }
         else if (currentState == Statemachine.Idle)
         {
+            GetComponent<Animator>().SetBool("Walking", false);
             visionCone.transform.right = transform.right;
             waitTime -= Time.deltaTime;
             if (waitTime <= 0) {
@@ -63,6 +64,7 @@ public class PatrolScript : MonoBehaviour {
         }
         else if (currentState == Statemachine.Alert)
         {
+            GetComponent<Animator>().SetBool("Walking", false);
             visionCone.transform.right = transform.right;
             stateCooldown -= Time.deltaTime;
             if (stateCooldown <= 0) {
@@ -77,6 +79,7 @@ public class PatrolScript : MonoBehaviour {
         }
         else if (currentState == Statemachine.Chasing)
         {
+            GetComponent<Animator>().SetBool("Walking", true);
             stateCooldown -= Time.deltaTime;
             target = GameData.player;
             if (stateCooldown <= 0)
@@ -96,13 +99,12 @@ public class PatrolScript : MonoBehaviour {
         transform.localScale = new Vector3(-transform.localScale.x, transform.localScale.y, transform.localScale.z);
     }
     private void LookWhereYouAreGoing() {
-        transform.localScale = new Vector3(1 * Mathf.Sign((transform.position - target.transform.position).x), 1, 1);
+        transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x) * Mathf.Sign((transform.position.x - target.transform.position.x)), transform.localScale.y, transform.localScale.z);
     }
 
     public void SetEnemyState(Statemachine newState) {
-
-
         currentState = newState;
+       
     }
 
     public void SetChaseCooldown()

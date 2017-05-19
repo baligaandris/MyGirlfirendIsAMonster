@@ -13,7 +13,6 @@ public class Player : MonoBehaviour {
     private GameObject groundDetector;
     private GameObject wallDetectorLeft;
     private GameObject wallDetectorRight;
-    private GameObject littleMan;
     private GameObject interactableDetector;
     private GameObject attackRange;
 
@@ -21,7 +20,8 @@ public class Player : MonoBehaviour {
     private Vector2 currentspeed;
     private bool carrying = true;
 
-
+    public Sprite spriteWithoutGuy;
+    public Sprite spriteWithGuy;
 
 
     // Use this for initialization
@@ -33,7 +33,7 @@ public class Player : MonoBehaviour {
         interactableDetector = transform.FindChild("InteractArea").gameObject;
         attackRange = transform.FindChild("Attack Range").gameObject;
         rb = GetComponent<Rigidbody2D>();
-        littleMan = transform.FindChild("Little Man").gameObject;
+
 
     }
 	
@@ -50,7 +50,6 @@ public class Player : MonoBehaviour {
             transform.localScale = new Vector3(-1f * Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
         }
         if (IsGrounded()) {
-            //transform.Translate(Vector2.right * walkingSpeed*Input.GetAxis("Horizontal")*Time.deltaTime);
             
             if (Input.GetButton("Jump"))
             {
@@ -65,8 +64,6 @@ public class Player : MonoBehaviour {
                 currentspeed = rb.velocity;
                 rb.velocity = new Vector2(currentspeed.x, Input.GetAxis("Vertical") * climbingSpeed);
             }
-            //currentspeed = rb.velocity;
-            //rb.velocity = new Vector2(Input.GetAxis("Horizontal") * walkingSpeed, currentspeed.y);
         }
         else {
             rb.gravityScale = 1f;
@@ -75,13 +72,13 @@ public class Player : MonoBehaviour {
             if (carrying) {
 
                 carrying = false;
-                littleMan.SetActive(false);
+
                 littleManInstance = Instantiate(littleManPrefab, attackRange.transform.position, Quaternion.identity);
                 Camera.main.GetComponent<FollowPlayer>().ChangeFollowTarget(littleManInstance);
-                
+                GetComponent<SpriteRenderer>().sprite = spriteWithoutGuy;
             } else if (interactableDetector.GetComponent<InteractableDetection>().manInRange) {
                 Camera.main.GetComponent<FollowPlayer>().ChangeFollowTarget(gameObject);
-                littleMan.SetActive(true);
+                GetComponent<SpriteRenderer>().sprite = spriteWithGuy;
                 carrying = true;
                 Destroy(littleManInstance);
             }
@@ -111,6 +108,11 @@ public class Player : MonoBehaviour {
         return (Physics2D.Linecast(transform.position, wallDetectorLeft.transform.position, 1 << LayerMask.NameToLayer("Ground")) || Physics2D.Linecast(transform.position, wallDetectorRight.transform.position, 1 << LayerMask.NameToLayer("Ground")));
     }
 
-
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.tag == "Little Man") {
+            Physics2D.IgnoreCollision(GetComponent<Collider2D>(), collision.gameObject.GetComponent<Collider2D>());
+        }
+    }
 
 }
