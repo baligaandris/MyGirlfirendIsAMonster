@@ -10,7 +10,8 @@ public class Player : MonoBehaviour {
 
     public GameObject littleManPrefab;
     private GameObject littleManInstance;
-    private GameObject groundDetector;
+    private GameObject groundDetector1;
+    private GameObject groundDetector2;
     private GameObject wallDetectorLeft;
     private GameObject wallDetectorRight;
     private GameObject interactableDetector;
@@ -26,7 +27,8 @@ public class Player : MonoBehaviour {
 
     void Start () {
         //save parts of the Player prefab that will be useful later
-        groundDetector = transform.FindChild("GroundDetector").gameObject;
+        groundDetector1 = transform.FindChild("GroundDetector1").gameObject;
+        groundDetector2 = transform.FindChild("GroundDetector2").gameObject;
         wallDetectorLeft = transform.FindChild("WallDetectorLeft").gameObject;
         wallDetectorRight = transform.FindChild("WallDetectorRight").gameObject;
         interactableDetector = transform.FindChild("InteractArea").gameObject;
@@ -60,11 +62,20 @@ public class Player : MonoBehaviour {
     }
 
     bool IsGrounded(){
-        return Physics2D.Linecast(transform.position, groundDetector.transform.position, 1 << LayerMask.NameToLayer("Ground"));
+        return (Physics2D.Linecast(transform.position, groundDetector1.transform.position, 1 << LayerMask.NameToLayer("Ground")) || Physics2D.Linecast(transform.position, groundDetector2.transform.position, 1 << LayerMask.NameToLayer("Ground")));
     }
 
     bool IsTouchingWall() {
-        return (Physics2D.Linecast(transform.position, wallDetectorLeft.transform.position, 1 << LayerMask.NameToLayer("Ground")) || Physics2D.Linecast(transform.position, wallDetectorRight.transform.position, 1 << LayerMask.NameToLayer("Ground")));
+        return (IsTouchingWallLeft() || IsTouchingWallRight());
+    }
+
+    bool IsTouchingWallLeft() {
+        return (Physics2D.Linecast(transform.position, wallDetectorLeft.transform.position, 1 << LayerMask.NameToLayer("Ground")));
+    }
+
+    bool IsTouchingWallRight()
+    {
+        return (Physics2D.Linecast(transform.position, wallDetectorRight.transform.position, 1 << LayerMask.NameToLayer("Ground")));
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -75,15 +86,40 @@ public class Player : MonoBehaviour {
     }
 
     private void WalkHorizontally() {
-        currentspeed = rb.velocity;
-        rb.velocity = new Vector2(Input.GetAxis("Horizontal") * walkingSpeed, currentspeed.y);
+
+        if (IsGrounded())
+        {
+            currentspeed = rb.velocity;
+            if (Input.GetAxis("Horizontal") != 0)
+            {
+                if (rb.velocity.x < walkingSpeed && rb.velocity.x> -walkingSpeed)
+                {
+                    rb.velocity += new Vector2(Input.GetAxis("Horizontal"), 0);
+                }
+                //else {
+                //    rb.velocity = new Vector2(walkingSpeed, currentspeed.y);
+                //}
+                
+            }
+        }
+        else
+        {
+            if (Input.GetAxis("Horizontal") != 0)
+            {
+                currentspeed = rb.velocity;
+                if (rb.velocity.x < walkingSpeed*0.2f && rb.velocity.x > -walkingSpeed * 0.2f)
+                    rb.velocity += new Vector2(Input.GetAxis("Horizontal"), 0);
+            }
+        }
         if (Input.GetAxis("Horizontal") > 0)
         {
-            transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
+            //transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
+            GetComponent<SpriteRenderer>().flipX = false;
         }
         else if (Input.GetAxis("Horizontal") < 0)
         {
-            transform.localScale = new Vector3(-1f * Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
+            //transform.localScale = new Vector3(-1f * Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
+            GetComponent<SpriteRenderer>().flipX = true;
         }
     }
 
@@ -106,11 +142,25 @@ public class Player : MonoBehaviour {
                 currentspeed = rb.velocity;
                 rb.velocity = new Vector2(currentspeed.x, Input.GetAxis("Vertical") * climbingSpeed);
             }
+            if (IsGrounded() == false) {
+                if (Input.GetButtonDown("Jump"))
+                {
+                    currentspeed = rb.velocity;
+                    if (IsTouchingWallLeft()) {
+                        rb.velocity = new Vector2(jumpStrenght, jumpStrenght);
+                    } else if(IsTouchingWallRight()){
+                        rb.velocity = new Vector2(-jumpStrenght, jumpStrenght);
+                    }
+
+                    
+                }
+            }
         }
         else
         {
             rb.gravityScale = 1f;
         }
+        
     }
 
     private void PutDownOrPickupMan() {
