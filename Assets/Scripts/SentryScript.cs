@@ -41,11 +41,21 @@ public class SentryScript : MonoBehaviour {
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.tag == "Player") {
-            for (int i = 0; i< EnemiesToAlert.Length; i++) {
-                if (EnemiesToAlert[i] != null) {
-                    EnemiesToAlert[i].GetComponent<PatrolScript>().SetEnemyState(PatrolScript.Statemachine.Chasing);
-                    Debug.Log("Enemies Alerted");
+            //itt valami nem stimmel.
+            RaycastHit2D rch = new RaycastHit2D();
+            rch = Physics2D.Raycast(transform.position, collision.gameObject.transform.position-transform.position);
+            Debug.Log(rch.collider.gameObject.name);
+            if (rch.collider.gameObject.tag == "Player")
+            {
+                for (int i = 0; i< EnemiesToAlert.Length; i++) {
+                    if (EnemiesToAlert[i] != null) {
+                        EnemiesToAlert[i].GetComponent<PatrolScript>().SetEnemyState(PatrolScript.Statemachine.Chasing);
+                        Debug.Log("Enemies Alerted");
                 }
+
+            }
+
+            
             }
         }
     }

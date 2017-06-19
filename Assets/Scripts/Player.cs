@@ -24,9 +24,8 @@ public class Player : MonoBehaviour {
     public Sprite spriteWithGuy;
 
 
-    // Use this for initialization
     void Start () {
-        
+        //save parts of the Player prefab that will be useful later
         groundDetector = transform.FindChild("GroundDetector").gameObject;
         wallDetectorLeft = transform.FindChild("WallDetectorLeft").gameObject;
         wallDetectorRight = transform.FindChild("WallDetectorRight").gameObject;
@@ -37,62 +36,21 @@ public class Player : MonoBehaviour {
 
     }
 	
-	// Update is called once per frame
 	void Update () {
-        currentspeed = rb.velocity;
-        rb.velocity = new Vector2(Input.GetAxis("Horizontal") * walkingSpeed, currentspeed.y);
-        if (Input.GetAxis("Horizontal") > 0)
-        {
-            transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x),transform.localScale.y,transform.localScale.z);
-        }
-        else if (Input.GetAxis("Horizontal") < 0)
-        {
-            transform.localScale = new Vector3(-1f * Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
-        }
-        if (IsGrounded()) {
-            
-            if (Input.GetButton("Jump"))
-            {
-                currentspeed = rb.velocity;
-                rb.velocity = new Vector2(currentspeed.x,jumpStrenght);
-            }
-        }
-        if (IsTouchingWall())
-        {
-            rb.gravityScale = 0.5f;
-            if (Input.GetAxis("Vertical")!=0) {
-                currentspeed = rb.velocity;
-                rb.velocity = new Vector2(currentspeed.x, Input.GetAxis("Vertical") * climbingSpeed);
-            }
-        }
-        else {
-            rb.gravityScale = 1f;
-        }
-        if (Input.GetButtonDown("Fire1")) {
-            if (carrying) {
-
-                carrying = false;
-
-                littleManInstance = Instantiate(littleManPrefab, attackRange.transform.position, Quaternion.identity);
-                Camera.main.GetComponent<FollowPlayer>().ChangeFollowTarget(littleManInstance);
-                GetComponent<SpriteRenderer>().sprite = spriteWithoutGuy;
-            } else if (interactableDetector.GetComponent<InteractableDetection>().manInRange) {
-                Camera.main.GetComponent<FollowPlayer>().ChangeFollowTarget(gameObject);
-                GetComponent<SpriteRenderer>().sprite = spriteWithGuy;
-                carrying = true;
-                Destroy(littleManInstance);
-            }
-        }
+        WalkHorizontally();
+        Jump();
+        HandleWallTouching();
+        PutDownOrPickupMan();
         if (carrying == false)
         {
-            if (Input.GetButtonDown("Fire2"))
+            if (Input.GetButtonDown("Fire1"))
             {
                 attackRange.GetComponent<PlayerAttackScript>().HitEnemies();
                 attackRange.GetComponent<PlayerAttackScript>().OpenDoor();
             }
         }
         else {
-            if (Input.GetButtonDown("Fire2"))
+            if (Input.GetButtonDown("Fire1"))
             {
                 attackRange.GetComponent<PlayerAttackScript>().OpenDoor();
             }
@@ -100,6 +58,7 @@ public class Player : MonoBehaviour {
 
 
     }
+
     bool IsGrounded(){
         return Physics2D.Linecast(transform.position, groundDetector.transform.position, 1 << LayerMask.NameToLayer("Ground"));
     }
@@ -112,6 +71,66 @@ public class Player : MonoBehaviour {
     {
         if (collision.gameObject.tag == "Little Man") {
             Physics2D.IgnoreCollision(GetComponent<Collider2D>(), collision.gameObject.GetComponent<Collider2D>());
+        }
+    }
+
+    private void WalkHorizontally() {
+        currentspeed = rb.velocity;
+        rb.velocity = new Vector2(Input.GetAxis("Horizontal") * walkingSpeed, currentspeed.y);
+        if (Input.GetAxis("Horizontal") > 0)
+        {
+            transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
+        }
+        else if (Input.GetAxis("Horizontal") < 0)
+        {
+            transform.localScale = new Vector3(-1f * Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
+        }
+    }
+
+    private void Jump(){
+        if (IsGrounded())
+        {
+            if (Input.GetButton("Jump"))
+            {
+                currentspeed = rb.velocity;
+                rb.velocity = new Vector2(currentspeed.x, jumpStrenght);
+            }
+        }
+    }
+    private void HandleWallTouching() {
+        if (IsTouchingWall())
+        {
+            rb.gravityScale = 0.5f;
+            if (Input.GetAxis("Vertical") != 0)
+            {
+                currentspeed = rb.velocity;
+                rb.velocity = new Vector2(currentspeed.x, Input.GetAxis("Vertical") * climbingSpeed);
+            }
+        }
+        else
+        {
+            rb.gravityScale = 1f;
+        }
+    }
+
+    private void PutDownOrPickupMan() {
+        if (Input.GetButtonDown("Fire2"))
+        {
+            if (carrying)
+            {
+                carrying = false;
+
+                littleManInstance = Instantiate(littleManPrefab, attackRange.transform.position, Quaternion.identity);
+                Camera.main.GetComponent<FollowPlayer>().ChangeFollowTarget(littleManInstance);
+                GetComponent<SpriteRenderer>().sprite = spriteWithoutGuy;
+            }
+            else if (interactableDetector.GetComponent<InteractableDetection>().manInRange)
+            {
+                Camera.main.GetComponent<FollowPlayer>().ChangeFollowTarget(gameObject);
+                GetComponent<SpriteRenderer>().sprite = spriteWithGuy;
+                carrying = true;
+                Destroy(littleManInstance);
+            }
         }
     }
 
